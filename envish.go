@@ -17,7 +17,7 @@ func currentUserShell() string {
 	return C.GoString(C.getpwuid(C.getuid()).pw_shell)
 }
 
-func main() {
+func envish() int {
 	dir, err := envtest.SetupEnvtestDefaultBinaryAssetsDirectory()
 	if err != nil {
 		panic(err)
@@ -31,8 +31,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
 	defer env.Stop()
+
 	kcfg, err := os.CreateTemp("", "envish-kubeconfig-")
 	if err != nil {
 		panic(err)
@@ -48,5 +48,19 @@ func main() {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Env = append(os.Environ(), fmt.Sprintf("%s=%s", clientcmd.RecommendedConfigPathEnvVar, kcfg.Name()))
-	cmd.Run()
+
+	status := 0
+	err = cmd.Run()
+	if err != nil {
+		eerr, ok := err.(*exec.ExitError)
+		if !ok {
+			panic(err)
+		}
+		status = eerr.ExitCode()
+	}
+	return status
+}
+
+func main() {
+	os.Exit(envish())
 }
