@@ -1,9 +1,5 @@
 package main
 
-// #include <unistd.h>
-// #include <pwd.h>
-import "C"
-
 import (
 	"flag"
 	"fmt"
@@ -14,10 +10,6 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
 )
-
-func currentUserShell() string {
-	return C.GoString(C.getpwuid(C.getuid()).pw_shell)
-}
 
 var (
 	version        *string
