@@ -18,6 +18,10 @@ func currentUserShell() string {
 	return C.GoString(C.getpwuid(C.getuid()).pw_shell)
 }
 
+var (
+	version *string
+)
+
 func envish() int {
 	dir, err := envtest.SetupEnvtestDefaultBinaryAssetsDirectory()
 	if err != nil {
@@ -25,8 +29,9 @@ func envish() int {
 	}
 
 	env := envtest.Environment{
-		DownloadBinaryAssets:  true,
-		BinaryAssetsDirectory: dir,
+		DownloadBinaryAssets:        true,
+		DownloadBinaryAssetsVersion: *version,
+		BinaryAssetsDirectory:       dir,
 	}
 	_, err = env.Start()
 	if err != nil {
@@ -73,6 +78,7 @@ func main() {
 	} else {
 		flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	}
+	version = flag.String("envtest-version", "", "envtest binaries version, defaults to latest stable")
 	flag.Parse()
 
 	os.Exit(envish())
