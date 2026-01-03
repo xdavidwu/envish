@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path"
 
 	"k8s.io/client-go/tools/clientcmd"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
@@ -19,7 +20,8 @@ func currentUserShell() string {
 }
 
 var (
-	version *string
+	version        *string
+	envtestBinPath *bool
 )
 
 func envish() int {
@@ -38,6 +40,11 @@ func envish() int {
 		panic(err)
 	}
 	defer env.Stop()
+
+	if *envtestBinPath {
+		envtestBin := path.Dir(env.ControlPlane.KubectlPath)
+		os.Setenv("PATH", envtestBin+":"+os.Getenv("PATH"))
+	}
 
 	kcfg, err := os.CreateTemp("", "envish-kubeconfig-")
 	if err != nil {
@@ -79,6 +86,7 @@ func main() {
 		flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	}
 	version = flag.String("envtest-version", "", "envtest binaries version, defaults to latest stable")
+	envtestBinPath = flag.Bool("envtest-bin-path", true, "Add envtest binaries directory to front of $PATH")
 	flag.Parse()
 
 	os.Exit(envish())
