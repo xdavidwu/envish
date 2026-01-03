@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 
+	"k8s.io/client-go/tools/clientcmd"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
 )
 
@@ -46,6 +47,6 @@ func main() {
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	cmd.Env = append(os.Environ(), fmt.Sprintf("%s=%s", "KUBECONFIG", kcfg.Name()))
+	cmd.Env = append(os.Environ(), fmt.Sprintf("%s=%s", clientcmd.RecommendedConfigPathEnvVar, kcfg.Name()))
 	cmd.Run()
 }
