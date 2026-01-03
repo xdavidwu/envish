@@ -24,6 +24,17 @@ var (
 	envtestBinPath *bool
 )
 
+func findShell() string {
+	sh := os.Getenv("SHELL")
+	if sh == "" {
+		sh = currentUserShell()
+		if sh == "" {
+			sh = "/bin/sh"
+		}
+	}
+	return sh
+}
+
 func envish() int {
 	dir, err := envtest.SetupEnvtestDefaultBinaryAssetsDirectory()
 	if err != nil {
@@ -58,7 +69,7 @@ func envish() int {
 
 	args := flag.Args()
 	if len(args) == 0 {
-		args = append(args, currentUserShell())
+		args = append(args, findShell())
 	}
 	cmd := exec.Command(args[0], args[1:]...)
 	cmd.Stdin = os.Stdin
