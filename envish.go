@@ -5,6 +5,7 @@ package main
 import "C"
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"os/exec"
@@ -43,7 +44,11 @@ func envish() int {
 		panic(err)
 	}
 
-	cmd := exec.Command(currentUserShell())
+	args := flag.Args()
+	if len(args) == 0 {
+		args = append(args, currentUserShell())
+	}
+	cmd := exec.Command(args[0], args[1:]...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -62,5 +67,13 @@ func envish() int {
 }
 
 func main() {
+	// XXX controller-runtime registers -kubeconfig
+	if len(os.Args) == 0 {
+		flag.CommandLine = flag.NewFlagSet("", flag.ExitOnError)
+	} else {
+		flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+	}
+	flag.Parse()
+
 	os.Exit(envish())
 }
