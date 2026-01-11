@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path"
+	"path/filepath"
 
 	"k8s.io/client-go/tools/clientcmd"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
@@ -34,7 +34,7 @@ func findShell() string {
 	if sh == "" {
 		sh = currentUserShell()
 		if sh == "" {
-			sh = "/bin/sh"
+			sh = defaultShell()
 		}
 	}
 	return sh
@@ -58,8 +58,8 @@ func envish() int {
 	defer env.Stop()
 
 	if *envtestBinPath {
-		envtestBin := path.Dir(env.ControlPlane.KubectlPath)
-		os.Setenv("PATH", envtestBin+":"+os.Getenv("PATH"))
+		envtestBin := filepath.Dir(env.ControlPlane.KubectlPath)
+		os.Setenv("PATH", envtestBin+string(filepath.ListSeparator)+os.Getenv("PATH"))
 	}
 
 	kcfg, err := os.CreateTemp("", "envish-kubeconfig-")
