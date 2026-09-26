@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -113,6 +114,7 @@ func main() {
 	flag.Parse()
 
 	log.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
+	http.DefaultClient = &http.Client{Transport: requestLog(http.DefaultTransport)}
 
 	os.Exit(envish())
 }
