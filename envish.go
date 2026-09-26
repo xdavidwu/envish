@@ -9,6 +9,8 @@ import (
 
 	"k8s.io/client-go/tools/clientcmd"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
+	"sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 )
 
 const (
@@ -103,8 +105,14 @@ func main() {
 	}
 	version = flag.String("envtest-version", "", "envtest binaries version, defaults to latest stable")
 	envtestBinPath = flag.Bool("envtest-bin-path", true, "Add envtest binaries directory to front of $PATH")
+
+	opts := zap.Options{}
+	opts.BindFlags(flag.CommandLine)
+
 	flag.CommandLine.Usage = usage
 	flag.Parse()
+
+	log.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 
 	os.Exit(envish())
 }
